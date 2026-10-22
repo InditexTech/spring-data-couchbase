@@ -50,6 +50,7 @@ import org.springframework.data.couchbase.util.CollectionAwareIntegrationTests;
 import org.springframework.data.couchbase.util.IgnoreWhen;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import reactor.core.publisher.Mono;
 
 import com.couchbase.client.core.error.IndexFailureException;
 import com.couchbase.client.core.io.CollectionIdentifier;
@@ -139,6 +140,29 @@ public class ReactiveCouchbaseRepositoryQueryCollectionIntegrationTests extends 
 
     reactiveAirportMustScopeRepository.withScope(scopeName).deleteById(id).block();
     }
+
+	@Test // GH-2169
+	void clearsPseudoArgsWhenRepositoryMethodFailsBeforeTemplateAccess() {
+		assertThrows(IllegalStateException.class,
+				() -> reactiveAirportRepository.withScope(scopeName).withCollection(collectionName).failBeforeTemplate());
+
+		assertThat(reactiveCouchbaseTemplate.getPseudoArgs()).isNull();
+		assertThat(reactiveAirportRepository.withScope(scopeName).withCollection(collectionName)
+				.findById(UUID.randomUUID().toString()).block()).isNull();
+	}
+
+	@Test
+	void publisherParametersStillUseDynamicScopeAfterInvocationReturns() {
+		Airport airport = new Airport(UUID.randomUUID().toString(), "test", "test");
+		reactiveAirportRepository.withScope(scopeName).withCollection(collectionName).save(airport).block();
+
+		try {
+			assertThat(reactiveAirportRepository.withScope(scopeName).withCollection(collectionName)
+					.findAllByIata(Mono.just("test")).collectList().block()).containsExactly(airport);
+		} finally {
+			reactiveAirportRepository.withScope(scopeName).withCollection(collectionName).delete(airport).block();
+		}
+	}
 
 	/**
 	 * can test against _default._default without setting up additional scope/collection and also test for collections and

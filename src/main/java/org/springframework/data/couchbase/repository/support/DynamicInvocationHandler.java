@@ -35,6 +35,7 @@ import com.couchbase.client.java.CommonOptions;
  *
  * @param <T>
  * @author Michael Reiche
+ * @author Fernando Blanch Calvete
  */
 public class DynamicInvocationHandler<T> implements InvocationHandler {
 	final T target;
@@ -117,15 +118,14 @@ public class DynamicInvocationHandler<T> implements InvocationHandler {
 		}
 
 		Method theMethod = FindMethod.findMethod(repositoryClass,  method.getName(), paramTypes);
-		Object result;
-
+		setThreadLocal();
 		try {
-			setThreadLocal();
-			result = theMethod.invoke(target, args);
+			return theMethod.invoke(target, args);
 		} catch (InvocationTargetException ite) {
+			// the method failed before consuming the PseudoArgs; do not leave them in the thread (GH-2169)
+			reactiveTemplate.setPseudoArgs(null);
 			throw ite.getCause();
 		}
-		return result;
 	}
 
 	private void setThreadLocal() {
