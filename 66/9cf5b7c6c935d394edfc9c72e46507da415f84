@@ -1,0 +1,21 @@
+src/main/java/org/springframework/data/couchbase/repository/support/DynamicInvocationHandler.java
+  s_f304ffcbf1e0e4::t_c61139e412655b 38,121-122,124-128,134,137
+src/test/java/org/springframework/data/couchbase/repository/query/ReactiveCouchbaseRepositoryQueryCollectionIntegrationTests.java
+  s_f304ffcbf1e0e4::t_95eac606305845 53,144-166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "669cf5b7c6c935d394edfc9c72e46507da415f84",
+  "prompts": {},
+  "sessions": {
+    "s_f304ffcbf1e0e4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ea78be4f0ffevuqJPX6KIioRcL",
+        "model": "claude-opus-5.5"
+      },
+      "human_author": "Fernando Blanch Calvete <fernandobc@ext.inditex.com>"
+    }
+  }
+}
